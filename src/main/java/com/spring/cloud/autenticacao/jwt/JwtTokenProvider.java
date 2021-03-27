@@ -1,8 +1,6 @@
 package com.spring.cloud.autenticacao.jwt;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -59,6 +57,20 @@ public class JwtTokenProvider {
         }
 
         return null;
+    }
+
+    public boolean validateToken(String token){
+
+        try{
+            Jws<Claims> claims = Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token);
+            if(claims.getBody().getExpiration().before(new Date())){
+                return false;
+            }
+
+            return true;
+        }catch (JwtException | IllegalArgumentException e){
+            return false;
+        }
     }
 
     private  String getUsernameByToken(String token){
